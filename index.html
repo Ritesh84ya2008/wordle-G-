@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Wordle Game</title>
+<style>
+  body {
+    margin: 0;
+    font-family: sans-serif;
+    background: linear-gradient(to bottom right, #0f172a, #1e3a8a); /* Navy blue gradient */
+    color: white;
+    text-align: center;
+  }
+
+  nav {
+    background: rgba(0,0,0,0.5);
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+  }
+
+  nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  section {
+    padding: 1.5rem;
+  }
+
+  .hidden { display: none; }
+
+  input, button {
+    padding: 0.8rem;
+    margin: 1rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    border: none;
+  }
+
+  button { background-color: #3b82f6; color: white; cursor: pointer; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(5, 45px);
+    gap: 4px;
+    justify-content: center;
+    margin: 1.5rem 0;
+  }
+
+  .grid div {
+    width: 45px;
+    height: 45px;
+    background-color: #1e293b;
+    border: 2px solid #334155;
+    border-radius: 4px;
+    font-size: 1.3rem;
+    line-height: 45px;
+    font-weight: bold;
+    color: white;
+    text-transform: uppercase;
+  }
+
+  .correct { background-color: #22c55e; }
+  .wrong { background-color: #dc2626; }
+
+  .keyboard {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 3px;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  .keyboard button {
+    flex: 1 0 8%;
+    max-width: 28px;
+    min-width: 22px;
+    height: 32px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    background-color: #475569;
+    color: white;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  @media (max-width: 600px) {
+    .keyboard button {
+      max-width: 25px;
+      min-width: 20px;
+      height: 28px;
+      font-size: 11px;
+    }
+    .grid div {
+      width: 38px;
+      height: 38px;
+      font-size: 1rem;
+      line-height: 38px;
+    }
+  }
+
+  .instructions {
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem auto;
+    max-width: 400px;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  /* ---- Project Link Style ---- */
+  .project-link {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.7rem 1.5rem;
+    background: #3b82f6;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.3s;
+  }
+
+  .project-link:hover {
+    background: #2563eb;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+  <a onclick="showSection('home')">🏠 Home</a>
+  <a onclick="showSection('about')">👨‍🎓 About</a>
+  <a onclick="showSection('contact')">📞 Contact</a>
+</nav>
+
+<!-- Home Section -->
+<section id="home">
+  <h2>🏠 Home</h2>
+  <div id="name-screen">
+    <h3>Apna Naam Darj Kijiye</h3>
+    <input type="text" id="username" placeholder="Jaise: Ritesh" />
+    <button onclick="startGame()">Submit</button>
+  </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="hidden">
+  <h2>👨‍🎓 About Me</h2>
+  <p><strong>Name:</strong> Ritesh Kumar</p>
+  <p><strong>Class:</strong> 12 (B1), Dr B P P S Sarvodya IC Ramganj Milkipur Ayodhya</p>
+  <p><strong>Father's Name:</strong> Amarnath</p>
+  <p><strong>Mother's Name:</strong> Manju</p>
+  <p><strong>My Journey:</strong> I have learned HTML, CSS, JavaScript and built games. I'm passionate about coding and making interactive websites.</p>
+  
+  <!-- Project Button -->
+  <a class="project-link" href="https://ritesh84ya2008.github.io/R--/" target="_blank">🚀 View My Project</a>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="hidden">
+  <h2>📞 Contact Me</h2>
+  <p><strong>📱 Mobile:</strong> 9450091853</p>
+  <p><strong>📧 Email:</strong> ritesh@example.com</p>
+  <p>
+    <a href="https://wa.me/919450091853" target="_blank">📱 WhatsApp</a> |
+    <a href="https://instagram.com/riteshchaurasiya0" target="_blank">📷 Instagram</a>
+  </p>
+</section>
+
+<!-- Game Screen -->
+<section id="game-screen" class="hidden">
+  <p>👋 Welcome, <span id="display-name"></span>!</p>
+  <p>Time Left: <span id="timer">60</span>s</p>
+
+  <div class="instructions">
+    <h3>📖 Game Instructions:</h3>
+    <ul>
+      <li>Ye ek 5-letter word guessing game hai.</li>
+      <li>Keyboard se letters choose karke word banao.</li>
+      <li>✅ Green ka matlab letter sahi jagah pe hai.</li>
+      <li>❌ Red ka matlab letter galat hai.</li>
+      <li>Aapke paas 6 chances hain sahi word guess karne ke liye.</li>
+      <li>⏰ 60 second ke andar sahi guess karna hoga.</li>
+    </ul>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="keyboard" id="keyboard"></div>
+</section>
+
+<script>
+let currentRow = 0;
+let currentGuess = "";
+let wordToGuess = "APPLE";
+let maxTries = 6;
+let timerInterval;
+let timeLeft = 60;
+
+function startGame() {
+  const name = document.getElementById("username").value;
+  if(!name) return alert("Naam likhna zaroori hai!");
+  document.getElementById("display-name").innerText = name;
+  showSection("game-screen");
+  createGrid();
+  createKeyboard();
+  startTimer();
+}
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").innerText = timeLeft;
+    if(timeLeft <= 0) {
+      clearInterval(timerInterval);
+      setTimeout(() => {
+        alert("⏰ Time up! Word tha: " + wordToGuess);
+        location.reload();
+      }, 500);
+    }
+  },1000);
+}
+
+function createGrid() {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  for(let i=0;i<30;i++){
+    const div = document.createElement("div");
+    div.id = `box-${i}`;
+    grid.appendChild(div);
+  }
+}
+
+function createKeyboard() {
+  const keys = "QWERTYUIOPASDFGHJKLZXCVBNM".split("");
+  const kb = document.getElementById("keyboard");
+  kb.innerHTML = "";
+  keys.forEach(k=>{
+    const btn = document.createElement("button");
+    btn.innerText = k;
+    btn.onclick = ()=>handleKey(k);
+    kb.appendChild(btn);
+  });
+  const enterBtn = document.createElement("button");
+  enterBtn.innerText = "⏎";
+  enterBtn.onclick = checkGuess;
+  kb.appendChild(enterBtn);
+
+  const delBtn = document.createElement("button");
+  delBtn.innerText = "⌫";
+  delBtn.onclick = ()=>{
+    if(currentGuess.length>0){
+      currentGuess=currentGuess.slice(0,-1);
+      const box=document.getElementById(`box-${currentRow*5+currentGuess.length}`);
+      box.innerText="";
+    }
+  };
+  kb.appendChild(delBtn);
+}
+
+function handleKey(letter){
+  if(currentGuess.length<5){
+    const box=document.getElementById(`box-${currentRow*5+currentGuess.length}`);
+    box.innerText=letter;
+    currentGuess+=letter;
+  }
+}
+
+function checkGuess(){
+  if(currentGuess.length!==5){ alert("5 letter ka word likhiye!"); return; }
+  const guess=currentGuess.toUpperCase();
+  for(let i=0;i<5;i++){
+    const box=document.getElementById(`box-${currentRow*5+i}`);
+    if(guess[i]===wordToGuess[i]) box.classList.add("correct");
+    else box.classList.add("wrong");
+  }
+  if(guess===wordToGuess){
+    clearInterval(timerInterval);
+    setTimeout(()=>{ alert("🎉 Jeet gaye! Word tha: "+wordToGuess); location.reload(); },500);
+  } else {
+    currentRow++;
+    currentGuess="";
+    if(currentRow>=maxTries){
+      clearInterval(timerInterval);
+      setTimeout(()=>{ alert("❌ Game Over! Word tha: "+wordToGuess); location.reload(); },500);
+    }
+  }
+}
+
+function showSection(sectionId){
+  ["home","about","contact","game-screen"].forEach(id=>document.getElementById(id).classList.add("hidden"));
+  document.getElementById(sectionId).classList.remove("hidden");
+}
+</script>
+</body>
+</html>
